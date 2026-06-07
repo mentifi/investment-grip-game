@@ -253,11 +253,26 @@ h1 {
   margin-bottom: 10px;
 }
 
+.amount-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
 .section-mini-title {
-  margin: 0 0 7px;
+  margin: 0;
   color: #b8c7bf;
   font-size: 12px;
   font-weight: 800;
+}
+
+.selected-amount-text {
+  margin: 0;
+  color: #91f0b8;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .amount-buttons {
@@ -278,8 +293,9 @@ h1 {
 
 .amount-btn.selected {
   border-color: #27c46b;
-  background: rgba(39, 196, 107, 0.22);
+  background: rgba(39, 196, 107, 0.28);
   color: #91f0b8;
+  box-shadow: 0 0 0 2px rgba(39, 196, 107, 0.22) inset;
 }
 
 .actions {
@@ -295,6 +311,7 @@ h1 {
   padding: 16px 8px;
   font-size: 17px;
   font-weight: 1000;
+  white-space: pre-line;
 }
 
 .sell {
@@ -506,7 +523,7 @@ textarea {
 
   .action-btn {
     padding: 14px 4px;
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .asset-box {
