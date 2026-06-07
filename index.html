@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>投資握力ゲーム</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=0.4" />
 </head>
 <body>
   <main class="app">
@@ -12,7 +12,7 @@
       <div id="titleArea" class="title-area">
         <div class="title-row">
           <p class="badge">暴落に耐えろ</p>
-          <p class="version">v0.3</p>
+          <p class="version">v0.4</p>
         </div>
         <h1>投資握力ゲーム</h1>
         <p class="subtitle">あなたは狼狽売りせずに握れるか？</p>
@@ -56,12 +56,16 @@
         </div>
 
         <div class="amount-section">
-          <p class="section-mini-title">売買額を選択</p>
+          <div class="amount-head">
+            <p class="section-mini-title">売買額を選択</p>
+            <p id="selectedAmountText" class="selected-amount-text">選択中：10万円</p>
+          </div>
+
           <div class="amount-buttons">
-            <button class="amount-btn selected" data-amount="100000">10万</button>
-            <button class="amount-btn" data-amount="300000">30万</button>
-            <button class="amount-btn" data-amount="500000">50万</button>
-            <button class="amount-btn" data-amount="all">全力</button>
+            <button type="button" class="amount-btn selected" data-amount="100000">10万</button>
+            <button type="button" class="amount-btn" data-amount="300000">30万</button>
+            <button type="button" class="amount-btn" data-amount="500000">50万</button>
+            <button type="button" class="amount-btn" data-amount="all">全力</button>
           </div>
         </div>
 
@@ -146,6 +150,6 @@
     </section>
   </main>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=0.4"></script>
 </body>
 </html>
