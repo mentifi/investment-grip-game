@@ -10,7 +10,10 @@
   <main class="app">
     <section class="card">
       <div id="titleArea" class="title-area">
-        <p class="badge">暴落に耐えろ</p>
+        <div class="title-row">
+          <p class="badge">暴落に耐えろ</p>
+          <p class="version">v0.3</p>
+        </div>
         <h1>投資握力ゲーム</h1>
         <p class="subtitle">あなたは狼狽売りせずに握れるか？</p>
       </div>
@@ -22,87 +25,81 @@
         </p>
 
         <h2 class="section-title">どの銘柄を握りますか？</h2>
-
         <div id="stockChoices" class="stock-choices"></div>
 
         <button id="startBtn" class="primary-btn">ゲーム開始</button>
       </div>
 
       <div id="gameScreen" class="screen hidden">
-        <div class="game-top">
-          <div>
-            <span>保有銘柄</span>
-            <strong id="selectedStockName">AI半導体株</strong>
-          </div>
+        <div class="top-status">
           <div>
             <span>ターン</span>
             <strong><span id="turn">1</span>/20</strong>
           </div>
-        </div>
-
-        <div class="asset-main">
-          <span>総資産</span>
-          <strong id="totalAsset">1,000,000円</strong>
-        </div>
-
-        <div class="mini-status">
           <div>
-            <span>現金</span>
-            <strong id="cash">300,000円</strong>
-          </div>
-          <div>
-            <span>株式</span>
-            <strong id="stockValue">700,000円</strong>
-          </div>
-          <div>
-            <span>最大下落率</span>
-            <strong id="drawdown">0%</strong>
+            <span>総資産</span>
+            <strong id="totalAsset">1,000,000円</strong>
           </div>
         </div>
 
-        <div class="market-box">
-          <div class="market-head">
-            <p class="market-label">今日のニュース</p>
-            <div id="priceChange" class="price-change">±0%</div>
+        <div class="news-card">
+          <div class="news-head">
+            <div>
+              <span id="selectedStockName" class="stock-name">AI半導体株</span>
+              <p>今日のニュース</p>
+            </div>
+            <strong id="priceChange" class="price-change">±0%</strong>
           </div>
+
           <h2 id="newsTitle">ニュース見出し</h2>
           <p id="newsText">ニュース本文</p>
+        </div>
+
+        <div class="amount-section">
+          <p class="section-mini-title">売買額を選択</p>
+          <div class="amount-buttons">
+            <button class="amount-btn selected" data-amount="100000">10万</button>
+            <button class="amount-btn" data-amount="300000">30万</button>
+            <button class="amount-btn" data-amount="500000">50万</button>
+            <button class="amount-btn" data-amount="all">全力</button>
+          </div>
         </div>
 
         <div class="actions">
           <button id="sellBtn" class="action-btn sell">売る</button>
           <button id="holdBtn" class="action-btn hold">握る</button>
-          <button id="buyBtn" class="action-btn buy">買い増す</button>
-        </div>
-
-        <div class="trade-preview">
-          <div>
-            <span>売却予定額</span>
-            <strong id="sellAmountPreview">350,000円</strong>
-          </div>
-          <div>
-            <span>買い増し予定額</span>
-            <strong id="buyAmountPreview">150,000円</strong>
-          </div>
+          <button id="buyBtn" class="action-btn buy">買う</button>
         </div>
 
         <p id="message" class="message"></p>
 
-        <div class="visual-grid">
-          <div class="chart-box">
-            <div class="chart-head">
-              <span>資産推移</span>
-            </div>
-            <canvas id="lineChart" width="360" height="120"></canvas>
+        <div class="asset-box">
+          <div class="asset-box-head">
+            <span>資産内訳</span>
+            <span id="drawdown">最大下落率：0%</span>
           </div>
 
-          <div class="pf-box">
-            <div class="chart-head pf-head">
-              <span>PF割合</span>
-              <span id="pfText">株式70% / 現金30%</span>
+          <div class="asset-row">
+            <div class="asset-label">
+              <span>現金</span>
+              <strong id="cash">300,000円</strong>
             </div>
-            <canvas id="pieChart" width="120" height="120"></canvas>
+            <div class="bar-wrap">
+              <div id="cashBar" class="bar cash-bar"></div>
+            </div>
           </div>
+
+          <div class="asset-row">
+            <div class="asset-label">
+              <span>株式</span>
+              <strong id="stockValue">700,000円</strong>
+            </div>
+            <div class="bar-wrap">
+              <div id="stockBar" class="bar stock-bar"></div>
+            </div>
+          </div>
+
+          <p id="pfText" class="pf-text">PF：株式70% / 現金30%</p>
         </div>
       </div>
 
@@ -127,6 +124,14 @@
             <span>握力スコア</span>
             <strong id="gripScore">0点</strong>
           </div>
+        </div>
+
+        <div class="result-chart-box">
+          <div class="asset-box-head">
+            <span>資産推移</span>
+            <span id="resultStockName">AI半導体株</span>
+          </div>
+          <canvas id="resultChart" width="640" height="220"></canvas>
         </div>
 
         <p id="resultComment" class="result-comment"></p>
