@@ -20,25 +20,50 @@ body {
 .card {
   background: rgba(10, 18, 15, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 22px;
+  border-radius: 24px;
   padding: 18px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
 }
 
+.hidden {
+  display: none !important;
+}
+
+.screen {
+  animation: fadeIn 0.2s ease;
+}
+
 .title-area {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+}
+
+.title-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.badge,
+.version {
+  display: inline-block;
+  margin: 0;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .badge {
-  display: inline-block;
-  margin: 0 0 8px;
-  padding: 5px 11px;
-  border-radius: 999px;
   background: #27c46b;
   color: #06150d;
-  font-weight: 900;
-  font-size: 12px;
+}
+
+.version {
+  background: rgba(255, 255, 255, 0.12);
+  color: #c9d7cf;
 }
 
 h1 {
@@ -59,14 +84,6 @@ h1 {
   margin: 8px 0 0;
 }
 
-.screen {
-  animation: fadeIn 0.2s ease;
-}
-
-.hidden {
-  display: none !important;
-}
-
 .section-title {
   text-align: center;
   font-size: 20px;
@@ -75,14 +92,21 @@ h1 {
 
 .primary-btn,
 .secondary-btn,
-.action-btn {
+.action-btn,
+.amount-btn,
+.stock-card {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.primary-btn,
+.secondary-btn {
   width: 100%;
   border: none;
-  border-radius: 15px;
+  border-radius: 16px;
   padding: 15px 14px;
   font-size: 16px;
   font-weight: 900;
-  cursor: pointer;
 }
 
 .primary-btn {
@@ -111,7 +135,6 @@ h1 {
   color: #f5f5f5;
   border-radius: 15px;
   padding: 13px;
-  cursor: pointer;
 }
 
 .stock-card.selected {
@@ -132,110 +155,75 @@ h1 {
   line-height: 1.55;
 }
 
-.game-top {
+.top-status {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 0.75fr 1.25fr;
   gap: 10px;
-  align-items: center;
-  background: rgba(39, 196, 107, 0.13);
-  border: 1px solid rgba(39, 196, 107, 0.24);
-  border-radius: 14px;
-  padding: 10px 12px;
   margin-bottom: 10px;
 }
 
-.game-top span,
-.asset-main span,
-.mini-status span,
-.trade-preview span,
+.top-status div {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 12px;
+  text-align: center;
+}
+
+.top-status span,
 .result-grid span {
   display: block;
   color: #aebbb3;
-  font-size: 11px;
-  margin-bottom: 3px;
+  font-size: 12px;
+  margin-bottom: 4px;
 }
 
-.game-top strong {
+.top-status strong {
   display: block;
-  font-size: 16px;
+  font-size: 20px;
 }
 
-.asset-main {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.09);
-  border-radius: 16px;
-  padding: 9px;
-  margin-bottom: 9px;
+#totalAsset {
+  font-size: 28px;
+  line-height: 1.1;
 }
 
-.asset-main strong {
-  display: block;
-  font-size: clamp(30px, 8vw, 42px);
-  line-height: 1.08;
+.news-card {
+  background: linear-gradient(135deg, rgba(39, 196, 107, 0.2), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(39, 196, 107, 0.3);
+  border-radius: 22px;
+  padding: 18px;
+  margin-bottom: 12px;
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.mini-status {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.mini-status div,
-.trade-preview div,
-.result-grid div {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 9px;
-  text-align: center;
-}
-
-.mini-status strong,
-.trade-preview strong {
-  font-size: 14px;
-}
-
-.market-box {
-  background: linear-gradient(135deg, rgba(39, 196, 107, 0.18), rgba(255, 255, 255, 0.06));
-  border: 1px solid rgba(39, 196, 107, 0.28);
-  border-radius: 18px;
-  padding: 12px;
-  margin-bottom: 10px;
-}
-
-.market-head {
+.news-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.market-label {
-  margin: 0;
+.news-head p {
+  margin: 4px 0 0;
   color: #91f0b8;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
 }
 
-.market-box h2 {
-  margin: 0 0 6px;
-  font-size: 18px;
-  line-height: 1.35;
-}
-
-.market-box p {
-  margin: 0;
-  color: #d8e4dd;
+.stock-name {
+  display: inline-block;
+  color: #c9d7cf;
   font-size: 13px;
-  line-height: 1.55;
 }
 
 .price-change {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 900;
-  text-align: right;
+  font-size: 48px;
+  font-weight: 1000;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -247,23 +235,71 @@ h1 {
   color: #ff6262;
 }
 
+.news-card h2 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 7vw, 42px);
+  line-height: 1.18;
+  letter-spacing: -0.04em;
+}
+
+.news-card p {
+  margin: 0;
+  color: #d8e4dd;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.amount-section {
+  margin-bottom: 10px;
+}
+
+.section-mini-title {
+  margin: 0 0 7px;
+  color: #b8c7bf;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.amount-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.amount-btn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f5f5;
+  border-radius: 14px;
+  padding: 11px 4px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.amount-btn.selected {
+  border-color: #27c46b;
+  background: rgba(39, 196, 107, 0.22);
+  color: #91f0b8;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .action-btn {
-  border-radius: 14px;
-  padding: 12px 4px;
-  font-size: 13px;
-  line-height: 1.25;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 8px;
+  font-size: 17px;
+  font-weight: 1000;
 }
 
 .sell {
   background: #ff6262;
-  color: #230606;
+  color: #240707;
 }
 
 .hold {
@@ -276,80 +312,105 @@ h1 {
   color: #06150d;
 }
 
-.trade-preview {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
 .message {
-  min-height: 20px;
+  min-height: 24px;
   color: #ffe8a3;
   text-align: center;
-  margin: 0 0 8px;
-  font-size: 13px;
+  margin: 0 0 10px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
-.visual-grid {
-  display: grid;
-  grid-template-columns: 1fr 132px;
-  gap: 8px;
-}
-
-.chart-box,
-.pf-box {
+.asset-box,
+.result-chart-box {
   background: rgba(255, 255, 255, 0.07);
-  border-radius: 14px;
-  padding: 10px;
+  border-radius: 18px;
+  padding: 14px;
 }
 
-.chart-head {
+.asset-box-head {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   color: #b8c7bf;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.asset-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.asset-label span {
+  display: block;
+  color: #aebbb3;
   font-size: 11px;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 
-#lineChart {
-  width: 100%;
-  height: 102px;
+.asset-label strong {
   display: block;
+  font-size: 15px;
 }
 
-#pieChart {
-  width: 96px;
-  height: 96px;
-  display: block;
-  margin: 0 auto;
+.bar-wrap {
+  height: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
 }
 
-.pf-head {
-  display: block;
+.bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.cash-bar {
+  background: #d8e4dd;
+}
+
+.stock-bar {
+  background: #27c46b;
+}
+
+.pf-text {
+  margin: 8px 0 0;
+  color: #d8e4dd;
+  font-size: 13px;
   text-align: center;
-}
-
-.pf-head span {
-  display: block;
-}
-
-#pfText {
-  font-size: 10px;
-  color: #c9d7cf;
-  margin-top: 2px;
 }
 
 .result-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  margin: 14px 0;
+}
+
+.result-grid div {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
 }
 
 .result-grid strong {
-  font-size: 18px;
+  font-size: 19px;
+}
+
+.result-chart-box {
+  margin-bottom: 14px;
+}
+
+#resultChart {
+  width: 100%;
+  height: 180px;
+  display: block;
 }
 
 .result-comment {
@@ -372,138 +433,101 @@ textarea {
 }
 
 @media (max-width: 640px) {
-  body {
-    overflow-x: hidden;
-  }
-
   .app {
-    padding: 6px;
+    padding: 7px;
   }
 
   .card {
-    min-height: calc(100dvh - 12px);
-    padding: 10px;
-    border-radius: 16px;
+    min-height: calc(100dvh - 14px);
+    padding: 12px;
+    border-radius: 18px;
   }
 
   .title-area {
-    margin-bottom: 10px;
-  }
-
-  .badge {
-    font-size: 10px;
-    padding: 4px 8px;
-    margin-bottom: 4px;
+    margin-bottom: 12px;
   }
 
   h1 {
-    font-size: 28px;
+    font-size: 30px;
   }
 
   .subtitle {
     font-size: 12px;
-    margin-top: 4px;
   }
 
-  .game-top {
-    padding: 8px 10px;
-    margin-bottom: 7px;
-  }
-
-  .game-top strong {
-    font-size: 14px;
-  }
-
-  .asset-main {
-    padding: 7px;
-    margin-bottom: 7px;
-  }
-
-  .asset-main strong {
-    font-size: 30px;
-  }
-
-  .mini-status {
-    gap: 6px;
-    margin-bottom: 7px;
-  }
-
-  .mini-status div,
-  .trade-preview div {
-    padding: 7px 4px;
-  }
-
-  .mini-status strong,
-  .trade-preview strong {
-    font-size: 12px;
-  }
-
-  .market-box {
-    padding: 9px;
+  .top-status {
+    grid-template-columns: 0.7fr 1.3fr;
+    gap: 7px;
     margin-bottom: 8px;
   }
 
-  .market-box h2 {
-    font-size: 15px;
-    margin-bottom: 4px;
+  .top-status div {
+    padding: 9px;
   }
 
-  .market-box p {
-    font-size: 11px;
-    line-height: 1.45;
+  .top-status strong {
+    font-size: 16px;
   }
 
-  .price-change {
+  #totalAsset {
     font-size: 24px;
   }
 
-  .actions {
+  .news-card {
+    padding: 14px;
+    min-height: 245px;
+    margin-bottom: 10px;
+  }
+
+  .price-change {
+    font-size: 42px;
+  }
+
+  .news-card h2 {
+    font-size: 30px;
+  }
+
+  .news-card p {
+    font-size: 14px;
+  }
+
+  .amount-buttons {
     gap: 6px;
-    margin-bottom: 6px;
+  }
+
+  .amount-btn {
+    padding: 10px 2px;
+    font-size: 13px;
+  }
+
+  .actions {
+    gap: 7px;
   }
 
   .action-btn {
-    font-size: 12px;
-    padding: 10px 2px;
+    padding: 14px 4px;
+    font-size: 16px;
   }
 
-  .trade-preview {
-    gap: 6px;
-    margin-bottom: 5px;
+  .asset-box {
+    padding: 11px;
+  }
+
+  .asset-row {
+    grid-template-columns: 96px 1fr;
+    gap: 8px;
+  }
+
+  .asset-label strong {
+    font-size: 13px;
   }
 
   .message {
-    font-size: 11px;
-    min-height: 16px;
-    margin-bottom: 5px;
+    font-size: 12px;
   }
 
-  .visual-grid {
-    grid-template-columns: 1fr 104px;
-    gap: 6px;
-  }
-
-  .chart-box,
-  .pf-box {
-    padding: 7px;
-  }
-
-  #lineChart {
-    height: 78px;
-  }
-
-  #pieChart {
-    width: 78px;
-    height: 78px;
-  }
-
-  .chart-head {
-    font-size: 10px;
-    margin-bottom: 3px;
-  }
-
-  #pfText {
-    font-size: 9px;
+  #resultChart {
+    height: 150px;
   }
 }
 
