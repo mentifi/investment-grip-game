@@ -94,13 +94,15 @@ h1 {
 .secondary-btn,
 .action-btn,
 .amount-btn,
-.stock-card {
+.stock-card,
+.x-btn {
   cursor: pointer;
   font-family: inherit;
 }
 
 .primary-btn,
-.secondary-btn {
+.secondary-btn,
+.x-btn {
   width: 100%;
   border: none;
   border-radius: 16px;
@@ -119,6 +121,20 @@ h1 {
   background: transparent;
   color: #f5f5f5;
   border: 1px solid rgba(255, 255, 255, 0.22);
+  margin-top: 10px;
+}
+
+.x-btn {
+  background: #f5f5f5;
+  color: #111;
+  margin-top: 12px;
+}
+
+.result-actions .primary-btn {
+  margin-top: 10px;
+}
+
+.result-actions .secondary-btn {
   margin-top: 10px;
 }
 
