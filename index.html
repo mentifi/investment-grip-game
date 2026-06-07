@@ -20,18 +20,24 @@
           初期資産100万円。<br>
           現金30万円、株式70万円からスタートします。
         </p>
-        <p class="lead">
-          毎ターン流れるニュースを見て、<br>
-          「売る」「買い増す」「握る」を選んでください。
-        </p>
+
+        <h2 class="section-title">どの銘柄を握りますか？</h2>
+
+        <div id="stockChoices" class="stock-choices"></div>
+
         <button id="startBtn" class="primary-btn">ゲーム開始</button>
       </div>
 
       <div id="gameScreen" class="screen hidden">
+        <div class="selected-stock">
+          <span>保有銘柄</span>
+          <strong id="selectedStockName">AI半導体株</strong>
+        </div>
+
         <div class="status-grid">
           <div>
             <span>ターン</span>
-            <strong><span id="turn">1</span>/15</strong>
+            <strong><span id="turn">1</span>/20</strong>
           </div>
           <div>
             <span>総資産</span>
@@ -54,12 +60,37 @@
           <div id="priceChange" class="price-change">±0%</div>
         </div>
 
-        <div class="chart-box">
-          <div class="chart-head">
-            <span>資産推移</span>
-            <span id="drawdown">最大下落率：0%</span>
+        <div class="visual-grid">
+          <div class="chart-box">
+            <div class="chart-head">
+              <span>資産推移</span>
+              <span id="drawdown">最大下落率：0%</span>
+            </div>
+            <svg id="lineChart" class="line-chart" viewBox="0 0 320 140" preserveAspectRatio="none"></svg>
           </div>
-          <div id="chart" class="chart"></div>
+
+          <div class="pf-box">
+            <div class="chart-head">
+              <span>PF割合</span>
+              <span id="pfText">株式70% / 現金30%</span>
+            </div>
+            <div id="pieChart" class="pie-chart"></div>
+            <div class="legend">
+              <span><i class="stock-dot"></i>株式</span>
+              <span><i class="cash-dot"></i>現金</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="trade-preview">
+          <div>
+            <span>売却予定額</span>
+            <strong id="sellAmountPreview">350,000円</strong>
+          </div>
+          <div>
+            <span>買い増し予定額</span>
+            <strong id="buyAmountPreview">150,000円</strong>
+          </div>
         </div>
 
         <div class="actions">
