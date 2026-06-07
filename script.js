@@ -62,12 +62,16 @@ const newsList = [
   { title: "買った瞬間に下がる", text: "あなたの注文を市場が見ていた可能性があります。", change: -6 },
   { title: "売った瞬間に上がる", text: "相場あるある。たぶん誰もが一度は通る道。", change: 7 },
   { title: "決算延期", text: "察し。市場は察しが良い。", change: -12 },
-  { title: "インフルエンサーが『長期では強い』と言い始める", text: "短期で弱いときによく見る言葉。信じるかはあなた次第。", change: -3 },
+  { title: "長期では強いらしい", text: "短期で弱いときによく聞く言葉。信じるかはあなた次第。", change: -3 },
   { title: "新製品発表", text: "詳細はよく分からないが、プレゼン資料がかっこいい。", change: 5 },
-  { title: "市場に謎の楽観ムード", text: "悪材料が出尽くしたということになった。", change: 7 }
+  { title: "市場に謎の楽観ムード", text: "悪材料が出尽くしたということになった。", change: 7 },
+  { title: "プレで爆上げ、本場で全戻し", text: "夢を見た時間は短かった。", change: -9 },
+  { title: "AI向け電力需要が追い風", text: "関係ありそうな企業がまとめて買われる。", change: 10 },
+  { title: "CEOが株主に感謝", text: "株価は感謝だけでは上がらない。", change: -2 }
 ];
 
 let selectedStock = stockTypes[0];
+let selectedAmount = 100000;
 
 let turn = 1;
 let cash = 300000;
@@ -79,6 +83,7 @@ let holdCount = 0;
 let tradeCount = 0;
 let buyCount = 0;
 let sellCount = 0;
+let allInCount = 0;
 let history = [INITIAL_ASSET];
 let currentNews = null;
 let currentChange = 0;
@@ -96,6 +101,7 @@ document.getElementById("restartBtn").addEventListener("click", restartGame);
 document.getElementById("copyBtn").addEventListener("click", copyResult);
 
 renderStockChoices();
+setupAmountButtons();
 
 function renderStockChoices() {
   const container = document.getElementById("stockChoices");
@@ -120,6 +126,22 @@ function renderStockChoices() {
     });
 
     container.appendChild(button);
+  });
+}
+
+function setupAmountButtons() {
+  const buttons = document.querySelectorAll(".amount-btn");
+
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      buttons.forEach(btn => btn.classList.remove("selected"));
+      button.classList.add("selected");
+
+      const value = button.dataset.amount;
+      selectedAmount = value === "all" ? "all" : Number(value);
+
+      updateActionLabels();
+    });
   });
 }
 
@@ -166,7 +188,7 @@ function chooseAction(action) {
 
   if (action === "hold") {
     holdCount++;
-    document.getElementById("message").textContent = "握った。えらい。";
+    document.getElementById("message").textContent = "握った。ニュースに流されない力。";
   }
 
   totalAsset = cash + stockValue;
@@ -193,11 +215,16 @@ function sellStock() {
     return;
   }
 
-  const sellAmount = getSellAmount();
+  const sellAmount = getTradeAmount("sell");
+
   stockValue -= sellAmount;
   cash += sellAmount;
   tradeCount++;
   sellCount++;
+
+  if (sellAmount === stockValue + sellAmount) {
+    allInCount++;
+  }
 
   document.getElementById("message").textContent =
     `${formatYen(sellAmount)}分売却。安心感は増えたが、夢は少し減った。`;
@@ -205,26 +232,33 @@ function sellStock() {
 
 function buyStock() {
   if (cash <= 0) {
-    document.getElementById("message").textContent = "買い増す現金がありません。";
+    document.getElementById("message").textContent = "買う現金がありません。";
     return;
   }
 
-  const buyAmount = getBuyAmount();
+  const buyAmount = getTradeAmount("buy");
+
   cash -= buyAmount;
   stockValue += buyAmount;
   tradeCount++;
   buyCount++;
 
+  if (buyAmount === cash + buyAmount) {
+    allInCount++;
+  }
+
   document.getElementById("message").textContent =
-    `${formatYen(buyAmount)}分買い増し。これが押し目か、落ちるナイフか。`;
+    `${formatYen(buyAmount)}分購入。これが押し目か、落ちるナイフか。`;
 }
 
-function getSellAmount() {
-  return Math.round(stockValue * 0.5);
-}
+function getTradeAmount(type) {
+  const base = type === "buy" ? cash : stockValue;
 
-function getBuyAmount() {
-  return Math.round(cash * 0.5);
+  if (selectedAmount === "all") {
+    return Math.round(base);
+  }
+
+  return Math.min(Math.round(base), selectedAmount);
 }
 
 function updateDrawdown() {
@@ -246,147 +280,31 @@ function updateDisplay() {
   document.getElementById("totalAsset").textContent = formatYen(totalAsset);
   document.getElementById("cash").textContent = formatYen(cash);
   document.getElementById("stockValue").textContent = formatYen(stockValue);
-  document.getElementById("drawdown").textContent = `${Math.round(maxDrawdown * 100)}%`;
+  document.getElementById("drawdown").textContent = `最大下落率：${Math.round(maxDrawdown * 100)}%`;
 
-  document.getElementById("sellAmountPreview").textContent =
-    stockValue > 0 ? formatYen(getSellAmount()) : "売却不可";
+  updateAssetBars();
+  updateActionLabels();
+}
 
-  document.getElementById("buyAmountPreview").textContent =
-    cash > 0 ? formatYen(getBuyAmount()) : "買付余力なし";
+function updateAssetBars() {
+  const total = cash + stockValue || 1;
+  const cashRatio = Math.round((cash / total) * 100);
+  const stockRatio = 100 - cashRatio;
+
+  document.getElementById("cashBar").style.width = `${cashRatio}%`;
+  document.getElementById("stockBar").style.width = `${stockRatio}%`;
+  document.getElementById("pfText").textContent = `PF：株式${stockRatio}% / 現金${cashRatio}%`;
+}
+
+function updateActionLabels() {
+  const sellAmount = getTradeAmount("sell");
+  const buyAmount = getTradeAmount("buy");
 
   document.getElementById("sellBtn").textContent =
-    stockValue > 0 ? `売る\n${formatYen(getSellAmount())}` : "売る";
+    stockValue > 0 ? `売る\n${formatYen(sellAmount)}` : "売る";
 
   document.getElementById("buyBtn").textContent =
-    cash > 0 ? `買い増す\n${formatYen(getBuyAmount())}` : "買い増す";
-
-  drawLineChart();
-  drawPieChart();
-}
-
-function drawLineChart() {
-  const canvas = document.getElementById("lineChart");
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  const width = canvas.width;
-  const height = canvas.height;
-
-  ctx.clearRect(0, 0, width, height);
-
-  const padding = 14;
-  const max = Math.max(...history);
-  const min = Math.min(...history);
-  const range = max - min || 1;
-
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
-  ctx.lineWidth = 1;
-
-  for (let i = 0; i <= 3; i++) {
-    const y = padding + ((height - padding * 2) / 3) * i;
-    ctx.beginPath();
-    ctx.moveTo(padding, y);
-    ctx.lineTo(width - padding, y);
-    ctx.stroke();
-  }
-
-  const points = history.map((value, index) => {
-    const x = padding + (index / Math.max(history.length - 1, 1)) * (width - padding * 2);
-    const y = height - padding - ((value - min) / range) * (height - padding * 2);
-    return { x, y };
-  });
-
-  if (points.length === 1) {
-    ctx.fillStyle = "#27c46b";
-    ctx.beginPath();
-    ctx.arc(points[0].x, points[0].y, 4, 0, Math.PI * 2);
-    ctx.fill();
-    return;
-  }
-
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, height - padding);
-  points.forEach(point => ctx.lineTo(point.x, point.y));
-  ctx.lineTo(points[points.length - 1].x, height - padding);
-  ctx.closePath();
-  ctx.fillStyle = "rgba(39,196,107,0.16)";
-  ctx.fill();
-
-  ctx.beginPath();
-  points.forEach((point, index) => {
-    if (index === 0) {
-      ctx.moveTo(point.x, point.y);
-    } else {
-      ctx.lineTo(point.x, point.y);
-    }
-  });
-
-  ctx.strokeStyle = "#27c46b";
-  ctx.lineWidth = 3;
-  ctx.lineJoin = "round";
-  ctx.lineCap = "round";
-  ctx.stroke();
-
-  const last = points[points.length - 1];
-  ctx.fillStyle = "#f5f5f5";
-  ctx.strokeStyle = "#27c46b";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(last.x, last.y, 4, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-}
-
-function drawPieChart() {
-  const canvas = document.getElementById("pieChart");
-  const pfText = document.getElementById("pfText");
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  const width = canvas.width;
-  const height = canvas.height;
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const radius = Math.min(width, height) / 2 - 8;
-
-  ctx.clearRect(0, 0, width, height);
-
-  const total = cash + stockValue || 1;
-  const stockRatio = stockValue / total;
-  const stockPercent = Math.round(stockRatio * 100);
-  const cashPercent = 100 - stockPercent;
-
-  const startAngle = -Math.PI / 2;
-  const stockEndAngle = startAngle + Math.PI * 2 * stockRatio;
-
-  ctx.beginPath();
-  ctx.moveTo(centerX, centerY);
-  ctx.arc(centerX, centerY, radius, startAngle, stockEndAngle);
-  ctx.closePath();
-  ctx.fillStyle = "#27c46b";
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(centerX, centerY);
-  ctx.arc(centerX, centerY, radius, stockEndAngle, startAngle + Math.PI * 2);
-  ctx.closePath();
-  ctx.fillStyle = "#d8e4dd";
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius * 0.58, 0, Math.PI * 2);
-  ctx.fillStyle = "#101d17";
-  ctx.fill();
-
-  ctx.fillStyle = "#f5f5f5";
-  ctx.font = "bold 18px system-ui";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(`${stockPercent}%`, centerX, centerY);
-
-  if (pfText) {
-    pfText.textContent = `株式${stockPercent}% / 現金${cashPercent}%`;
-  }
+    cash > 0 ? `買う\n${formatYen(buyAmount)}` : "買う";
 }
 
 function showResult() {
@@ -404,6 +322,9 @@ function showResult() {
   document.getElementById("maxDrawdown").textContent = `${drawdownPercent}%`;
   document.getElementById("gripScore").textContent = `${gripScore}点`;
   document.getElementById("resultComment").textContent = type.comment;
+  document.getElementById("resultStockName").textContent = selectedStock.name;
+
+  drawResultChart();
 
   const shareText =
 `投資握力ゲームをやった結果、
@@ -420,12 +341,74 @@ function showResult() {
   document.getElementById("shareText").value = shareText;
 }
 
+function drawResultChart() {
+  const canvas = document.getElementById("resultChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const padding = 24;
+  const max = Math.max(...history);
+  const min = Math.min(...history);
+  const range = max - min || 1;
+
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i <= 4; i++) {
+    const y = padding + ((height - padding * 2) / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(width - padding, y);
+    ctx.stroke();
+  }
+
+  const points = history.map((value, index) => {
+    const x = padding + (index / Math.max(history.length - 1, 1)) * (width - padding * 2);
+    const y = height - padding - ((value - min) / range) * (height - padding * 2);
+    return { x, y };
+  });
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, height - padding);
+  points.forEach(point => ctx.lineTo(point.x, point.y));
+  ctx.lineTo(points[points.length - 1].x, height - padding);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(39,196,107,0.16)";
+  ctx.fill();
+
+  ctx.beginPath();
+  points.forEach((point, index) => {
+    if (index === 0) ctx.moveTo(point.x, point.y);
+    else ctx.lineTo(point.x, point.y);
+  });
+
+  ctx.strokeStyle = "#27c46b";
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.stroke();
+
+  const last = points[points.length - 1];
+  ctx.fillStyle = "#f5f5f5";
+  ctx.strokeStyle = "#27c46b";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
 function calculateGripScore(finalReturn, drawdownPercent) {
   let score = 50;
   score += holdCount * 3.5;
   score += finalReturn * 0.55;
   score += drawdownPercent * 0.25;
-  score -= tradeCount * 2.5;
+  score -= tradeCount * 1.5;
 
   return Math.max(0, Math.min(100, Math.round(score)));
 }
@@ -445,6 +428,13 @@ function getInvestorType(finalReturn, drawdownPercent, gripScore) {
     };
   }
 
+  if (allInCount >= 3) {
+    return {
+      title: "全力ボタン中毒者",
+      comment: "全力の誘惑に負けすぎです。資産形成というよりスポーツに近いです。"
+    };
+  }
+
   if (gripScore >= 85 && finalReturn > 20) {
     return {
       title: "握力ゴリラ投資家",
@@ -459,7 +449,7 @@ function getInvestorType(finalReturn, drawdownPercent, gripScore) {
     };
   }
 
-  if (tradeCount >= 10) {
+  if (tradeCount >= 12) {
     return {
       title: "売買しすぎ職人",
       comment: "相場より自分の指が忙しいタイプです。手数料無料の時代でよかった。"
@@ -527,6 +517,19 @@ function restartGame() {
 
   resetGameValues();
   renderStockChoices();
+  resetAmountButtons();
+}
+
+function resetAmountButtons() {
+  selectedAmount = 100000;
+  const buttons = document.querySelectorAll(".amount-btn");
+
+  buttons.forEach(button => {
+    button.classList.remove("selected");
+    if (button.dataset.amount === "100000") {
+      button.classList.add("selected");
+    }
+  });
 }
 
 function resetGameValues() {
@@ -540,6 +543,7 @@ function resetGameValues() {
   tradeCount = 0;
   buyCount = 0;
   sellCount = 0;
+  allInCount = 0;
   history = [INITIAL_ASSET];
   currentNews = null;
   currentChange = 0;
