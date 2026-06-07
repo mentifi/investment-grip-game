@@ -1,108 +1,73 @@
 const INITIAL_ASSET = 1000000;
-const MAX_TURN = 15;
+const MAX_TURN = 20;
 
-const newsList = [
+const stockTypes = [
   {
-    title: "AIバブル崩壊か？",
-    text: "半導体株に利益確定売り。SNSでは『終わりの始まり』がトレンド入り。",
-    change: -8
+    id: "ai",
+    name: "AI半導体株",
+    description: "期待リターン：高い / 値動き：激しい / 材料：AI・GPU・データセンター",
+    multiplier: 1.15
   },
   {
-    title: "決算は良好、でも市場予想には届かず",
-    text: "売上は過去最高。しかし投資家の期待が高すぎて株価は下落。",
-    change: -6
+    id: "space",
+    name: "宇宙開発株",
+    description: "期待リターン：夢 / 値動き：地獄 / 材料：打ち上げ・増資・契約延期",
+    multiplier: 1.45
   },
   {
-    title: "CEOがAIを27回連呼",
-    text: "決算説明会でAI、AI、AI。市場は素直に好感。",
-    change: 9
+    id: "fintech",
+    name: "フィンテック株",
+    description: "期待リターン：中〜高 / 値動き：中 / 材料：金利・黒字化・貸倒率",
+    multiplier: 0.9
   },
   {
-    title: "FRB高官、利下げに慎重姿勢",
-    text: "金利低下を期待していたグロース株に売りが広がる。",
-    change: -5
+    id: "dividend",
+    name: "高配当株",
+    description: "期待リターン：ほどほど / 値動き：安定 / 材料：増配・減配・金利",
+    multiplier: 0.55
   },
   {
-    title: "粗利率が市場予想を上回る",
-    text: "地味ながら強い決算。分かる人には分かるやつ。",
-    change: 7
-  },
-  {
-    title: "有名インフルエンサーが『これはバブル』と投稿",
-    text: "タイムラインが急に不安になる。握力が試される局面。",
-    change: -7
-  },
-  {
-    title: "大型受注を発表",
-    text: "データセンター向け需要が想定以上。市場はポジティブに反応。",
-    change: 11
-  },
-  {
-    title: "ガイダンスが微妙",
-    text: "会社は長期成長を強調。しかし短期勢は容赦なく売る。",
-    change: -10
-  },
-  {
-    title: "謎の小型株がRedditで話題に",
-    text: "よく分からないが急騰。雰囲気は完全に祭り。",
-    change: 15
-  },
-  {
-    title: "アナリストが目標株価を引き上げ",
-    text: "理由は『AI需要のさらなる拡大』。それ昨日も聞いた。",
-    change: 6
-  },
-  {
-    title: "決算ミス",
-    text: "CEOは『長期的には問題ない』と説明。なお株価は許していない。",
-    change: -14
-  },
-  {
-    title: "市場全体がリスクオン",
-    text: "金利低下、ハイテク上昇。昨日までの悲観はどこへ。",
-    change: 8
-  },
-  {
-    title: "謎の格下げ",
-    text: "理由はよく分からないが、雰囲気で売られる。",
-    change: -4
-  },
-  {
-    title: "大型顧客との提携報道",
-    text: "正式発表ではないが、期待だけで株価が走る。",
-    change: 10
-  },
-  {
-    title: "市場は様子見",
-    text: "大きな材料なし。こういう日こそ何もしない力が問われる。",
-    change: 1
-  },
-  {
-    title: "CPIが予想より高い",
-    text: "金利上昇を警戒してグロース株が売られる。",
-    change: -9
-  },
-  {
-    title: "CPIが予想より低い",
-    text: "利下げ期待が復活。なぜか全部買われる。",
-    change: 9
-  },
-  {
-    title: "株価急落、でも業績は悪くない",
-    text: "決算資料を読んだ人だけが少し落ち着いている。",
-    change: -6
-  },
-  {
-    title: "新製品発表",
-    text: "詳細はよく分からないが、プレゼン資料がかっこいい。",
-    change: 5
-  },
-  {
-    title: "市場に謎の楽観ムード",
-    text: "悪材料が出尽くしたということになった。",
-    change: 7
+    id: "smallai",
+    name: "謎の小型AI株",
+    description: "期待リターン：未知数 / 値動き：狂気 / 材料：Reddit・提携匂わせ・増資",
+    multiplier: 1.85
   }
 ];
+
+const newsList = [
+  { title: "AIバブル崩壊か？", text: "半導体株に利益確定売り。SNSでは『終わりの始まり』がトレンド入り。", change: -8 },
+  { title: "決算は良好、でも市場予想には届かず", text: "売上は過去最高。しかし投資家の期待が高すぎて株価は下落。", change: -6 },
+  { title: "CEOがAIを27回連呼", text: "決算説明会でAI、AI、AI。市場は素直に好感。", change: 9 },
+  { title: "FRB高官、利下げに慎重姿勢", text: "金利低下を期待していたグロース株に売りが広がる。", change: -5 },
+  { title: "粗利率が市場予想を上回る", text: "地味ながら強い決算。分かる人には分かるやつ。", change: 7 },
+  { title: "有名インフルエンサーが『これはバブル』と投稿", text: "タイムラインが急に不安になる。握力が試される局面。", change: -7 },
+  { title: "大型受注を発表", text: "データセンター向け需要が想定以上。市場はポジティブに反応。", change: 11 },
+  { title: "ガイダンスが微妙", text: "会社は長期成長を強調。しかし短期勢は容赦なく売る。", change: -10 },
+  { title: "謎の小型株がRedditで話題に", text: "よく分からないが急騰。雰囲気は完全に祭り。", change: 15 },
+  { title: "アナリストが目標株価を引き上げ", text: "理由は『AI需要のさらなる拡大』。それ昨日も聞いた。", change: 6 },
+  { title: "決算ミス", text: "CEOは『長期的には問題ない』と説明。なお株価は許していない。", change: -14 },
+  { title: "市場全体がリスクオン", text: "金利低下、ハイテク上昇。昨日までの悲観はどこへ。", change: 8 },
+  { title: "謎の格下げ", text: "理由はよく分からないが、雰囲気で売られる。", change: -4 },
+  { title: "大型顧客との提携報道", text: "正式発表ではないが、期待だけで株価が走る。", change: 10 },
+  { title: "市場は様子見", text: "大きな材料なし。こういう日こそ何もしない力が問われる。", change: 1 },
+  { title: "CPIが予想より高い", text: "金利上昇を警戒してグロース株が売られる。", change: -9 },
+  { title: "CPIが予想より低い", text: "利下げ期待が復活。なぜか全部買われる。", change: 9 },
+  { title: "寄り天、発生", text: "プレマーケットでは爆上げ。本場が始まった瞬間、全部なかったことに。", change: -8 },
+  { title: "掲示板が総悲観", text: "ホルダーの心が折れかけている。なお、こういう時が底だったりする。", change: 5 },
+  { title: "掲示板が総楽観", text: "全員が勝利を確信。だいたいこういう時が一番こわい。", change: -7 },
+  { title: "増資発表", text: "夢を燃料に株数が増える。会社は生き延び、株主は薄まる。", change: -13 },
+  { title: "大型契約を発表、ただし金額非公開", text: "すごそうではある。すごそうではあるが、数字はない。", change: 4 },
+  { title: "S&P500採用期待が浮上", text: "まだ決まっていないが、期待だけで株価が走り始める。", change: 8 },
+  { title: "データセンター関連として急に物色", text: "昨日まで誰も見ていなかったのに、今日からAI銘柄ということになった。", change: 12 },
+  { title: "買った瞬間に下がる", text: "あなたの注文を市場が見ていた可能性があります。", change: -6 },
+  { title: "売った瞬間に上がる", text: "相場あるある。たぶん誰もが一度は通る道。", change: 7 },
+  { title: "決算延期", text: "察し。市場は察しが良い。", change: -12 },
+  { title: "インフルエンサーが『長期では強い』と言い始める", text: "短期で弱いときによく見る言葉。信じるかはあなた次第。", change: -3 },
+  { title: "新製品発表", text: "詳細はよく分からないが、プレゼン資料がかっこいい。", change: 5 },
+  { title: "市場に謎の楽観ムード", text: "悪材料が出尽くしたということになった。", change: 7 }
+];
+
+let selectedStock = stockTypes[0];
 
 let turn = 1;
 let cash = 300000;
@@ -112,8 +77,11 @@ let peakAsset = INITIAL_ASSET;
 let maxDrawdown = 0;
 let holdCount = 0;
 let tradeCount = 0;
+let buyCount = 0;
+let sellCount = 0;
 let history = [INITIAL_ASSET];
 let currentNews = null;
+let currentChange = 0;
 
 const startScreen = document.getElementById("startScreen");
 const gameScreen = document.getElementById("gameScreen");
@@ -126,23 +94,56 @@ document.getElementById("buyBtn").addEventListener("click", () => chooseAction("
 document.getElementById("restartBtn").addEventListener("click", restartGame);
 document.getElementById("copyBtn").addEventListener("click", copyResult);
 
+renderStockChoices();
+
+function renderStockChoices() {
+  const container = document.getElementById("stockChoices");
+  container.innerHTML = "";
+
+  stockTypes.forEach(stock => {
+    const button = document.createElement("button");
+    button.className = "stock-card";
+    if (stock.id === selectedStock.id) {
+      button.classList.add("selected");
+    }
+
+    button.innerHTML = `
+      <strong>${stock.name}</strong>
+      <span>${stock.description}</span>
+    `;
+
+    button.addEventListener("click", () => {
+      selectedStock = stock;
+      renderStockChoices();
+    });
+
+    container.appendChild(button);
+  });
+}
+
 function startGame() {
   startScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
+
+  document.getElementById("selectedStockName").textContent = selectedStock.name;
+
   showNextNews();
   updateDisplay();
 }
 
 function showNextNews() {
   currentNews = newsList[Math.floor(Math.random() * newsList.length)];
+  currentChange = Math.round(currentNews.change * selectedStock.multiplier);
+
+  currentChange = Math.max(-35, Math.min(35, currentChange));
 
   document.getElementById("newsTitle").textContent = currentNews.title;
   document.getElementById("newsText").textContent = currentNews.text;
 
   const priceChange = document.getElementById("priceChange");
-  priceChange.textContent = `${currentNews.change > 0 ? "+" : ""}${currentNews.change}%`;
+  priceChange.textContent = `${currentChange > 0 ? "+" : ""}${currentChange}%`;
   priceChange.className = "price-change";
-  priceChange.classList.add(currentNews.change >= 0 ? "up" : "down");
+  priceChange.classList.add(currentChange >= 0 ? "up" : "down");
 
   document.getElementById("message").textContent = "";
 }
@@ -178,7 +179,7 @@ function chooseAction(action) {
 }
 
 function applyMarketChange() {
-  stockValue = Math.round(stockValue * (1 + currentNews.change / 100));
+  stockValue = Math.round(stockValue * (1 + currentChange / 100));
 }
 
 function sellStock() {
@@ -187,11 +188,14 @@ function sellStock() {
     return;
   }
 
-  const sellAmount = Math.round(stockValue * 0.5);
+  const sellAmount = getSellAmount();
   stockValue -= sellAmount;
   cash += sellAmount;
   tradeCount++;
-  document.getElementById("message").textContent = "半分売った。安心感は増えたが、夢は少し減った。";
+  sellCount++;
+
+  document.getElementById("message").textContent =
+    `${formatYen(sellAmount)}分売却。安心感は増えたが、夢は少し減った。`;
 }
 
 function buyStock() {
@@ -200,11 +204,22 @@ function buyStock() {
     return;
   }
 
-  const buyAmount = Math.round(cash * 0.5);
+  const buyAmount = getBuyAmount();
   cash -= buyAmount;
   stockValue += buyAmount;
   tradeCount++;
-  document.getElementById("message").textContent = "余力の半分を投入。これが押し目か、落ちるナイフか。";
+  buyCount++;
+
+  document.getElementById("message").textContent =
+    `${formatYen(buyAmount)}分買い増し。これが押し目か、落ちるナイフか。`;
+}
+
+function getSellAmount() {
+  return Math.round(stockValue * 0.5);
+}
+
+function getBuyAmount() {
+  return Math.round(cash * 0.5);
 }
 
 function updateDrawdown() {
@@ -227,26 +242,77 @@ function updateDisplay() {
   document.getElementById("stockValue").textContent = formatYen(stockValue);
   document.getElementById("drawdown").textContent = `最大下落率：${Math.round(maxDrawdown * 100)}%`;
 
-  drawChart();
+  document.getElementById("sellAmountPreview").textContent =
+    stockValue > 0 ? formatYen(getSellAmount()) : "売却不可";
+
+  document.getElementById("buyAmountPreview").textContent =
+    cash > 0 ? formatYen(getBuyAmount()) : "買付余力なし";
+
+  document.getElementById("sellBtn").textContent =
+    stockValue > 0 ? `売る（${formatYen(getSellAmount())}）` : "売る";
+
+  document.getElementById("buyBtn").textContent =
+    cash > 0 ? `買い増す（${formatYen(getBuyAmount())}）` : "買い増す";
+
+  drawLineChart();
+  drawPieChart();
 }
 
-function drawChart() {
-  const chart = document.getElementById("chart");
-  chart.innerHTML = "";
+function drawLineChart() {
+  const svg = document.getElementById("lineChart");
+  svg.innerHTML = "";
+
+  const width = 320;
+  const height = 140;
+  const padding = 12;
 
   const max = Math.max(...history);
   const min = Math.min(...history);
+  const range = max - min || 1;
 
-  history.forEach(value => {
-    const bar = document.createElement("div");
-    bar.className = "bar";
-
-    const range = max - min || 1;
-    const height = 20 + ((value - min) / range) * 70;
-    bar.style.height = `${height}px`;
-
-    chart.appendChild(bar);
+  const points = history.map((value, index) => {
+    const x = padding + (index / Math.max(history.length - 1, 1)) * (width - padding * 2);
+    const y = height - padding - ((value - min) / range) * (height - padding * 2);
+    return { x, y };
   });
+
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  const areaPath =
+    `${linePath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`;
+
+  const area = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  area.setAttribute("d", areaPath);
+  area.setAttribute("class", "chart-area");
+  svg.appendChild(area);
+
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  line.setAttribute("d", linePath);
+  line.setAttribute("class", "chart-line");
+  svg.appendChild(line);
+
+  points.forEach(point => {
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", point.x);
+    dot.setAttribute("cy", point.y);
+    dot.setAttribute("r", 3);
+    dot.setAttribute("class", "chart-dot");
+    svg.appendChild(dot);
+  });
+}
+
+function drawPieChart() {
+  const pie = document.getElementById("pieChart");
+  const pfText = document.getElementById("pfText");
+
+  const total = cash + stockValue || 1;
+  const stockRatio = Math.round((stockValue / total) * 100);
+  const cashRatio = 100 - stockRatio;
+  const stockDeg = stockRatio * 3.6;
+
+  pie.style.background =
+    `conic-gradient(#27c46b 0deg ${stockDeg}deg, #d8e4dd ${stockDeg}deg 360deg)`;
+
+  pfText.textContent = `株式${stockRatio}% / 現金${cashRatio}%`;
 }
 
 function showResult() {
@@ -270,6 +336,7 @@ function showResult() {
 `投資握力ゲームをやった結果、
 私は「${type.title}」でした。
 
+銘柄：${selectedStock.name}
 最終資産：${formatYen(totalAsset)}
 リターン：${finalReturn >= 0 ? "+" : ""}${finalReturn.toFixed(1)}%
 最大下落率：${drawdownPercent}%
@@ -282,15 +349,29 @@ function showResult() {
 
 function calculateGripScore(finalReturn, drawdownPercent) {
   let score = 50;
-  score += holdCount * 4;
-  score += finalReturn * 0.6;
-  score += drawdownPercent * 0.3;
-  score -= tradeCount * 3;
+  score += holdCount * 3.5;
+  score += finalReturn * 0.55;
+  score += drawdownPercent * 0.25;
+  score -= tradeCount * 2.5;
 
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 function getInvestorType(finalReturn, drawdownPercent, gripScore) {
+  if (selectedStock.id === "smallai" && finalReturn > 40) {
+    return {
+      title: "テンバガー夢追い人",
+      comment: "謎の小型AI株を握り切りました。勝てば天才、負ければ勉強代です。"
+    };
+  }
+
+  if (selectedStock.id === "space" && drawdownPercent <= -35 && gripScore >= 60) {
+    return {
+      title: "宇宙まで握った人",
+      comment: "株価は地球に落ちかけましたが、あなたの握力だけは成層圏を突破しました。"
+    };
+  }
+
   if (gripScore >= 85 && finalReturn > 20) {
     return {
       title: "握力ゴリラ投資家",
@@ -298,14 +379,21 @@ function getInvestorType(finalReturn, drawdownPercent, gripScore) {
     };
   }
 
-  if (tradeCount >= 9) {
+  if (buyCount >= 6 && finalReturn < 0) {
+    return {
+      title: "ナンピン地獄民",
+      comment: "下がるたびに買いました。勇気なのか、現実逃避なのかは市場だけが知っています。"
+    };
+  }
+
+  if (tradeCount >= 10) {
     return {
       title: "売買しすぎ職人",
       comment: "相場より自分の指が忙しいタイプです。手数料無料の時代でよかった。"
     };
   }
 
-  if (finalReturn < -15) {
+  if (finalReturn < -20) {
     return {
       title: "一生含み損マン",
       comment: "まだ負けたわけではありません。売っていなければ、たぶん、きっと。"
@@ -319,7 +407,7 @@ function getInvestorType(finalReturn, drawdownPercent, gripScore) {
     };
   }
 
-  if (finalReturn > 15) {
+  if (finalReturn > 18 && buyCount >= 3) {
     return {
       title: "押し目買いの鬼",
       comment: "下落を恐れず拾えました。なお実戦でできるかは別問題です。"
@@ -366,11 +454,16 @@ function restartGame() {
   maxDrawdown = 0;
   holdCount = 0;
   tradeCount = 0;
+  buyCount = 0;
+  sellCount = 0;
   history = [INITIAL_ASSET];
   currentNews = null;
+  currentChange = 0;
 
   resultScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
+
+  renderStockChoices();
 }
 
 function formatYen(value) {
