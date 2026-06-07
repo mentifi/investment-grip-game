@@ -1,1 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>投資握力ゲーム</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <div class="title-area">
+        <p class="badge">暴落に耐えろ</p>
+        <h1>投資握力ゲーム</h1>
+        <p class="subtitle">あなたは狼狽売りせずに握れるか？</p>
+      </div>
 
+      <div id="startScreen" class="screen">
+        <p class="lead">
+          初期資産100万円。<br>
+          現金30万円、株式70万円からスタートします。
+        </p>
+        <p class="lead">
+          毎ターン流れるニュースを見て、<br>
+          「売る」「買い増す」「握る」を選んでください。
+        </p>
+        <button id="startBtn" class="primary-btn">ゲーム開始</button>
+      </div>
+
+      <div id="gameScreen" class="screen hidden">
+        <div class="status-grid">
+          <div>
+            <span>ターン</span>
+            <strong><span id="turn">1</span>/15</strong>
+          </div>
+          <div>
+            <span>総資産</span>
+            <strong id="totalAsset">1,000,000円</strong>
+          </div>
+          <div>
+            <span>現金</span>
+            <strong id="cash">300,000円</strong>
+          </div>
+          <div>
+            <span>株式評価額</span>
+            <strong id="stockValue">700,000円</strong>
+          </div>
+        </div>
+
+        <div class="market-box">
+          <p class="market-label">今日のニュース</p>
+          <h2 id="newsTitle">ニュース見出し</h2>
+          <p id="newsText">ニュース本文</p>
+          <div id="priceChange" class="price-change">±0%</div>
+        </div>
+
+        <div class="chart-box">
+          <div class="chart-head">
+            <span>資産推移</span>
+            <span id="drawdown">最大下落率：0%</span>
+          </div>
+          <div id="chart" class="chart"></div>
+        </div>
+
+        <div class="actions">
+          <button id="sellBtn" class="action-btn sell">売る</button>
+          <button id="holdBtn" class="action-btn hold">握る</button>
+          <button id="buyBtn" class="action-btn buy">買い増す</button>
+        </div>
+
+        <p id="message" class="message"></p>
+      </div>
+
+      <div id="resultScreen" class="screen hidden">
+        <p class="badge">結果発表</p>
+        <h2 id="resultTitle">あなたは握力ゴリラ</h2>
+
+        <div class="result-grid">
+          <div>
+            <span>最終資産</span>
+            <strong id="finalAsset">0円</strong>
+          </div>
+          <div>
+            <span>リターン</span>
+            <strong id="finalReturn">0%</strong>
+          </div>
+          <div>
+            <span>最大下落率</span>
+            <strong id="maxDrawdown">0%</strong>
+          </div>
+          <div>
+            <span>握力スコア</span>
+            <strong id="gripScore">0点</strong>
+          </div>
+        </div>
+
+        <p id="resultComment" class="result-comment"></p>
+
+        <textarea id="shareText" readonly></textarea>
+
+        <div class="result-actions">
+          <button id="copyBtn" class="primary-btn">結果をコピー</button>
+          <button id="restartBtn" class="secondary-btn">もう一度やる</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
