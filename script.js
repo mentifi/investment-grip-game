@@ -83,6 +83,7 @@ let history = [INITIAL_ASSET];
 let currentNews = null;
 let currentChange = 0;
 
+const titleArea = document.getElementById("titleArea");
 const startScreen = document.getElementById("startScreen");
 const gameScreen = document.getElementById("gameScreen");
 const resultScreen = document.getElementById("resultScreen");
@@ -103,6 +104,7 @@ function renderStockChoices() {
   stockTypes.forEach(stock => {
     const button = document.createElement("button");
     button.className = "stock-card";
+
     if (stock.id === selectedStock.id) {
       button.classList.add("selected");
     }
@@ -122,7 +124,11 @@ function renderStockChoices() {
 }
 
 function startGame() {
+  resetGameValues();
+
+  titleArea.classList.add("hidden");
   startScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
 
   document.getElementById("selectedStockName").textContent = selectedStock.name;
@@ -134,7 +140,6 @@ function startGame() {
 function showNextNews() {
   currentNews = newsList[Math.floor(Math.random() * newsList.length)];
   currentChange = Math.round(currentNews.change * selectedStock.multiplier);
-
   currentChange = Math.max(-35, Math.min(35, currentChange));
 
   document.getElementById("newsTitle").textContent = currentNews.title;
@@ -228,6 +233,7 @@ function updateDrawdown() {
   }
 
   const drawdown = (totalAsset - peakAsset) / peakAsset;
+
   if (drawdown < maxDrawdown) {
     maxDrawdown = drawdown;
   }
@@ -241,6 +247,7 @@ function updateDisplay() {
   document.getElementById("cash").textContent = formatYen(cash);
   document.getElementById("stockValue").textContent = formatYen(stockValue);
   document.getElementById("drawdown").textContent = `${Math.round(maxDrawdown * 100)}%`;
+
   document.getElementById("sellAmountPreview").textContent =
     stockValue > 0 ? formatYen(getSellAmount()) : "売却不可";
 
@@ -248,10 +255,10 @@ function updateDisplay() {
     cash > 0 ? formatYen(getBuyAmount()) : "買付余力なし";
 
   document.getElementById("sellBtn").textContent =
-    stockValue > 0 ? `売る（${formatYen(getSellAmount())}）` : "売る";
+    stockValue > 0 ? `売る\n${formatYen(getSellAmount())}` : "売る";
 
   document.getElementById("buyBtn").textContent =
-    cash > 0 ? `買い増す（${formatYen(getBuyAmount())}）` : "買い増す";
+    cash > 0 ? `買い増す\n${formatYen(getBuyAmount())}` : "買い増す";
 
   drawLineChart();
   drawPieChart();
@@ -267,14 +274,14 @@ function drawLineChart() {
 
   ctx.clearRect(0, 0, width, height);
 
-  const padding = 12;
+  const padding = 14;
   const max = Math.max(...history);
   const min = Math.min(...history);
   const range = max - min || 1;
 
-  // 背景グリッド
   ctx.strokeStyle = "rgba(255,255,255,0.12)";
   ctx.lineWidth = 1;
+
   for (let i = 0; i <= 3; i++) {
     const y = padding + ((height - padding * 2) / 3) * i;
     ctx.beginPath();
@@ -297,28 +304,29 @@ function drawLineChart() {
     return;
   }
 
-  // 塗り
   ctx.beginPath();
   ctx.moveTo(points[0].x, height - padding);
-  points.forEach(p => ctx.lineTo(p.x, p.y));
+  points.forEach(point => ctx.lineTo(point.x, point.y));
   ctx.lineTo(points[points.length - 1].x, height - padding);
   ctx.closePath();
   ctx.fillStyle = "rgba(39,196,107,0.16)";
   ctx.fill();
 
-  // 折れ線
   ctx.beginPath();
-  points.forEach((p, i) => {
-    if (i === 0) ctx.moveTo(p.x, p.y);
-    else ctx.lineTo(p.x, p.y);
+  points.forEach((point, index) => {
+    if (index === 0) {
+      ctx.moveTo(point.x, point.y);
+    } else {
+      ctx.lineTo(point.x, point.y);
+    }
   });
+
   ctx.strokeStyle = "#27c46b";
   ctx.lineWidth = 3;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
   ctx.stroke();
 
-  // 最新点
   const last = points[points.length - 1];
   ctx.fillStyle = "#f5f5f5";
   ctx.strokeStyle = "#27c46b";
@@ -327,29 +335,6 @@ function drawLineChart() {
   ctx.arc(last.x, last.y, 4, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-}
-  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  const areaPath =
-    `${linePath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`;
-
-  const area = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  area.setAttribute("d", areaPath);
-  area.setAttribute("class", "chart-area");
-  svg.appendChild(area);
-
-  const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  line.setAttribute("d", linePath);
-  line.setAttribute("class", "chart-line");
-  svg.appendChild(line);
-
-  points.forEach(point => {
-    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    dot.setAttribute("cx", point.x);
-    dot.setAttribute("cy", point.y);
-    dot.setAttribute("r", 3);
-    dot.setAttribute("class", "chart-dot");
-    svg.appendChild(dot);
-  });
 }
 
 function drawPieChart() {
@@ -360,8 +345,8 @@ function drawPieChart() {
   const ctx = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
-  const cx = width / 2;
-  const cy = height / 2;
+  const centerX = width / 2;
+  const centerY = height / 2;
   const radius = Math.min(width, height) / 2 - 8;
 
   ctx.clearRect(0, 0, width, height);
@@ -371,42 +356,39 @@ function drawPieChart() {
   const stockPercent = Math.round(stockRatio * 100);
   const cashPercent = 100 - stockPercent;
 
-  const start = -Math.PI / 2;
-  const stockEnd = start + Math.PI * 2 * stockRatio;
+  const startAngle = -Math.PI / 2;
+  const stockEndAngle = startAngle + Math.PI * 2 * stockRatio;
 
-  // 株式部分
   ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.arc(cx, cy, radius, start, stockEnd);
+  ctx.moveTo(centerX, centerY);
+  ctx.arc(centerX, centerY, radius, startAngle, stockEndAngle);
   ctx.closePath();
   ctx.fillStyle = "#27c46b";
   ctx.fill();
 
-  // 現金部分
   ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.arc(cx, cy, radius, stockEnd, start + Math.PI * 2);
+  ctx.moveTo(centerX, centerY);
+  ctx.arc(centerX, centerY, radius, stockEndAngle, startAngle + Math.PI * 2);
   ctx.closePath();
   ctx.fillStyle = "#d8e4dd";
   ctx.fill();
 
-  // 中抜き
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.58, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, radius * 0.58, 0, Math.PI * 2);
   ctx.fillStyle = "#101d17";
   ctx.fill();
 
-  // 中央テキスト
   ctx.fillStyle = "#f5f5f5";
   ctx.font = "bold 18px system-ui";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(`${stockPercent}%`, cx, cy);
+  ctx.fillText(`${stockPercent}%`, centerX, centerY);
 
   if (pfText) {
     pfText.textContent = `株式${stockPercent}% / 現金${cashPercent}%`;
   }
 }
+
 function showResult() {
   gameScreen.classList.add("hidden");
   resultScreen.classList.remove("hidden");
@@ -414,7 +396,6 @@ function showResult() {
   const finalReturn = ((totalAsset - INITIAL_ASSET) / INITIAL_ASSET) * 100;
   const drawdownPercent = Math.round(maxDrawdown * 100);
   const gripScore = calculateGripScore(finalReturn, drawdownPercent);
-
   const type = getInvestorType(finalReturn, drawdownPercent, gripScore);
 
   document.getElementById("resultTitle").textContent = type.title;
@@ -532,12 +513,23 @@ function copyResult() {
   document.execCommand("copy");
 
   document.getElementById("copyBtn").textContent = "コピーしました";
+
   setTimeout(() => {
     document.getElementById("copyBtn").textContent = "結果をコピー";
   }, 1600);
 }
 
 function restartGame() {
+  titleArea.classList.remove("hidden");
+  resultScreen.classList.add("hidden");
+  gameScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+
+  resetGameValues();
+  renderStockChoices();
+}
+
+function resetGameValues() {
   turn = 1;
   cash = 300000;
   stockValue = 700000;
@@ -551,11 +543,6 @@ function restartGame() {
   history = [INITIAL_ASSET];
   currentNews = null;
   currentChange = 0;
-
-  resultScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
-
-  renderStockChoices();
 }
 
 function formatYen(value) {
