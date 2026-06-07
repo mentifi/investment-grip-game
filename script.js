@@ -109,6 +109,7 @@ function renderStockChoices() {
 
   stockTypes.forEach(stock => {
     const button = document.createElement("button");
+    button.type = "button";
     button.className = "stock-card";
 
     if (stock.id === selectedStock.id) {
@@ -130,18 +131,26 @@ function renderStockChoices() {
 }
 
 function setupAmountButtons() {
-  const buttons = document.querySelectorAll(".amount-btn");
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".amount-btn");
+    if (!button) return;
 
-  buttons.forEach(button => {
-    button.addEventListener("click", () => {
-      buttons.forEach(btn => btn.classList.remove("selected"));
-      button.classList.add("selected");
-
-      const value = button.dataset.amount;
-      selectedAmount = value === "all" ? "all" : Number(value);
-
-      updateActionLabels();
+    document.querySelectorAll(".amount-btn").forEach(btn => {
+      btn.classList.remove("selected");
     });
+
+    button.classList.add("selected");
+
+    const value = button.dataset.amount;
+    selectedAmount = value === "all" ? "all" : Number(value);
+
+    updateSelectedAmountText();
+    updateActionLabels();
+
+    if (!gameScreen.classList.contains("hidden")) {
+      document.getElementById("message").textContent =
+        `売買額を「${getSelectedAmountLabel()}」に変更しました。`;
+    }
   });
 }
 
@@ -215,6 +224,7 @@ function sellStock() {
     return;
   }
 
+  const beforeStockValue = stockValue;
   const sellAmount = getTradeAmount("sell");
 
   stockValue -= sellAmount;
@@ -222,7 +232,7 @@ function sellStock() {
   tradeCount++;
   sellCount++;
 
-  if (sellAmount === stockValue + sellAmount) {
+  if (sellAmount === beforeStockValue) {
     allInCount++;
   }
 
@@ -236,6 +246,7 @@ function buyStock() {
     return;
   }
 
+  const beforeCash = cash;
   const buyAmount = getTradeAmount("buy");
 
   cash -= buyAmount;
@@ -243,7 +254,7 @@ function buyStock() {
   tradeCount++;
   buyCount++;
 
-  if (buyAmount === cash + buyAmount) {
+  if (buyAmount === beforeCash) {
     allInCount++;
   }
 
@@ -255,10 +266,10 @@ function getTradeAmount(type) {
   const base = type === "buy" ? cash : stockValue;
 
   if (selectedAmount === "all") {
-    return Math.round(base);
+    return Math.max(0, Math.round(base));
   }
 
-  return Math.min(Math.round(base), selectedAmount);
+  return Math.max(0, Math.min(Math.round(base), selectedAmount));
 }
 
 function updateDrawdown() {
@@ -282,18 +293,34 @@ function updateDisplay() {
   document.getElementById("stockValue").textContent = formatYen(stockValue);
   document.getElementById("drawdown").textContent = `最大下落率：${Math.round(maxDrawdown * 100)}%`;
 
+  updateSelectedAmountText();
   updateAssetBars();
   updateActionLabels();
 }
 
 function updateAssetBars() {
   const total = cash + stockValue || 1;
-  const cashRatio = Math.round((cash / total) * 100);
-  const stockRatio = 100 - cashRatio;
 
-  document.getElementById("cashBar").style.width = `${cashRatio}%`;
-  document.getElementById("stockBar").style.width = `${stockRatio}%`;
-  document.getElementById("pfText").textContent = `PF：株式${stockRatio}% / 現金${cashRatio}%`;
+  const cashPercent = Math.round((cash / total) * 100);
+  const stockPercent = 100 - cashPercent;
+
+  const cashBar = document.getElementById("cashBar");
+  const stockBar = document.getElementById("stockBar");
+  const pfText = document.getElementById("pfText");
+
+  if (cashBar) cashBar.style.width = `${cashPercent}%`;
+  if (stockBar) stockBar.style.width = `${stockPercent}%`;
+
+  if (pfText) {
+    pfText.textContent = `PF：株式${stockPercent}% / 現金${cashPercent}%`;
+  }
+}
+
+function updateSelectedAmountText() {
+  const text = document.getElementById("selectedAmountText");
+  if (!text) return;
+
+  text.textContent = `選択中：${getSelectedAmountLabel()}`;
 }
 
 function updateActionLabels() {
@@ -305,6 +332,14 @@ function updateActionLabels() {
 
   document.getElementById("buyBtn").textContent =
     cash > 0 ? `買う\n${formatYen(buyAmount)}` : "買う";
+}
+
+function getSelectedAmountLabel() {
+  if (selectedAmount === "all") {
+    return "全力";
+  }
+
+  return formatYen(selectedAmount);
 }
 
 function showResult() {
@@ -516,20 +551,22 @@ function restartGame() {
   startScreen.classList.remove("hidden");
 
   resetGameValues();
-  renderStockChoices();
   resetAmountButtons();
+  renderStockChoices();
 }
 
 function resetAmountButtons() {
   selectedAmount = 100000;
-  const buttons = document.querySelectorAll(".amount-btn");
 
-  buttons.forEach(button => {
+  document.querySelectorAll(".amount-btn").forEach(button => {
     button.classList.remove("selected");
+
     if (button.dataset.amount === "100000") {
       button.classList.add("selected");
     }
   });
+
+  updateSelectedAmountText();
 }
 
 function resetGameValues() {
