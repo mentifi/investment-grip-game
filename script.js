@@ -240,8 +240,7 @@ function updateDisplay() {
   document.getElementById("totalAsset").textContent = formatYen(totalAsset);
   document.getElementById("cash").textContent = formatYen(cash);
   document.getElementById("stockValue").textContent = formatYen(stockValue);
-  document.getElementById("drawdown").textContent = `最大下落率：${Math.round(maxDrawdown * 100)}%`;
-
+  document.getElementById("drawdown").textContent = `${Math.round(maxDrawdown * 100)}%`;
   document.getElementById("sellAmountPreview").textContent =
     stockValue > 0 ? formatYen(getSellAmount()) : "売却不可";
 
@@ -259,16 +258,30 @@ function updateDisplay() {
 }
 
 function drawLineChart() {
-  const svg = document.getElementById("lineChart");
-  svg.innerHTML = "";
+  const canvas = document.getElementById("lineChart");
+  if (!canvas) return;
 
-  const width = 320;
-  const height = 140;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+
+  ctx.clearRect(0, 0, width, height);
+
   const padding = 12;
-
   const max = Math.max(...history);
   const min = Math.min(...history);
   const range = max - min || 1;
+
+  // 背景グリッド
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) {
+    const y = padding + ((height - padding * 2) / 3) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(width - padding, y);
+    ctx.stroke();
+  }
 
   const points = history.map((value, index) => {
     const x = padding + (index / Math.max(history.length - 1, 1)) * (width - padding * 2);
@@ -276,6 +289,45 @@ function drawLineChart() {
     return { x, y };
   });
 
+  if (points.length === 1) {
+    ctx.fillStyle = "#27c46b";
+    ctx.beginPath();
+    ctx.arc(points[0].x, points[0].y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    return;
+  }
+
+  // 塗り
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, height - padding);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(points[points.length - 1].x, height - padding);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(39,196,107,0.16)";
+  ctx.fill();
+
+  // 折れ線
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  });
+  ctx.strokeStyle = "#27c46b";
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.stroke();
+
+  // 最新点
+  const last = points[points.length - 1];
+  ctx.fillStyle = "#f5f5f5";
+  ctx.strokeStyle = "#27c46b";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
   const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const areaPath =
     `${linePath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`;
@@ -301,20 +353,60 @@ function drawLineChart() {
 }
 
 function drawPieChart() {
-  const pie = document.getElementById("pieChart");
+  const canvas = document.getElementById("pieChart");
   const pfText = document.getElementById("pfText");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = Math.min(width, height) / 2 - 8;
+
+  ctx.clearRect(0, 0, width, height);
 
   const total = cash + stockValue || 1;
-  const stockRatio = Math.round((stockValue / total) * 100);
-  const cashRatio = 100 - stockRatio;
-  const stockDeg = stockRatio * 3.6;
+  const stockRatio = stockValue / total;
+  const stockPercent = Math.round(stockRatio * 100);
+  const cashPercent = 100 - stockPercent;
 
-  pie.style.background =
-    `conic-gradient(#27c46b 0deg ${stockDeg}deg, #d8e4dd ${stockDeg}deg 360deg)`;
+  const start = -Math.PI / 2;
+  const stockEnd = start + Math.PI * 2 * stockRatio;
 
-  pfText.textContent = `株式${stockRatio}% / 現金${cashRatio}%`;
+  // 株式部分
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.arc(cx, cy, radius, start, stockEnd);
+  ctx.closePath();
+  ctx.fillStyle = "#27c46b";
+  ctx.fill();
+
+  // 現金部分
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.arc(cx, cy, radius, stockEnd, start + Math.PI * 2);
+  ctx.closePath();
+  ctx.fillStyle = "#d8e4dd";
+  ctx.fill();
+
+  // 中抜き
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.58, 0, Math.PI * 2);
+  ctx.fillStyle = "#101d17";
+  ctx.fill();
+
+  // 中央テキスト
+  ctx.fillStyle = "#f5f5f5";
+  ctx.font = "bold 18px system-ui";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(`${stockPercent}%`, cx, cy);
+
+  if (pfText) {
+    pfText.textContent = `株式${stockPercent}% / 現金${cashPercent}%`;
+  }
 }
-
 function showResult() {
   gameScreen.classList.add("hidden");
   resultScreen.classList.remove("hidden");
