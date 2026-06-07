@@ -99,6 +99,7 @@ document.getElementById("holdBtn").addEventListener("click", () => chooseAction(
 document.getElementById("buyBtn").addEventListener("click", () => chooseAction("buy"));
 document.getElementById("restartBtn").addEventListener("click", restartGame);
 document.getElementById("copyBtn").addEventListener("click", copyResult);
+document.getElementById("postXBtn").addEventListener("click", postToX);
 
 renderStockChoices();
 setupAmountButtons();
@@ -361,6 +362,8 @@ function showResult() {
 
   drawResultChart();
 
+  const gameUrl = window.location.href.split("?")[0];
+
   const shareText =
 `投資握力ゲームをやった結果、
 私は「${type.title}」でした。
@@ -370,6 +373,8 @@ function showResult() {
 リターン：${finalReturn >= 0 ? "+" : ""}${finalReturn.toFixed(1)}%
 最大下落率：${drawdownPercent}%
 握力スコア：${gripScore}点
+
+${gameUrl}
 
 #投資握力ゲーム`;
 
@@ -530,6 +535,13 @@ function getInvestorType(finalReturn, drawdownPercent, gripScore) {
     title: "雰囲気投資家",
     comment: "なんとなく売って、なんとなく買って、なんとなく生き残りました。相場は雰囲気。"
   };
+}
+
+function postToX() {
+  const shareText = document.getElementById("shareText").value;
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+
+  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 function copyResult() {
